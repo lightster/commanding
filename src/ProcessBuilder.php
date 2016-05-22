@@ -69,6 +69,7 @@ class ProcessBuilder
      */
     private function buildScriptString($starting_command)
     {
+        $started = false;
         if (!$starting_command) {
             $started = true;
         }
@@ -80,6 +81,7 @@ class ProcessBuilder
             }
 
             $selected_commands[$key] = $command;
+            $started = true;
         }
 
         $sprintf = new Sprintf(new Bundle());
