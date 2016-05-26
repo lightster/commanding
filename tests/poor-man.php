@@ -25,13 +25,22 @@ $params_template = [
     'inspiration' => 'You are awesome to me!',
 ];
 
+$param_builder = function ($exit_code) use ($params_template) {
+    return function ($host) use ($params_template, $exit_code) {
+        $params = $params_template;
+
+        $params['host'] = $host;
+        $params['exit_code'] = $exit_code;
+
+        return $params;
+    };
+}
+
 $failed_hosts = [];
 foreach ($hosts as $index => $host) {
     $params = $params_template;
-    $params['host'] = $host;
-    $params['exit_code'] = $index;
 
-    $process = $process_builder->buildSshProcess($host, $params);
+    $process = $process_builder->buildSshProcess($host, $param_builder($index));
 
     $retry_from = $process->run();
     if ($retry_from) {
@@ -40,9 +49,6 @@ foreach ($hosts as $index => $host) {
 }
 
 foreach ($failed_hosts as $host => $retry_from) {
-    $params = $params_template;
-    $params['host'] = $host;
-
-    $process = $process_builder->buildSshProcess($host, $params, $retry_from);
+    $process = $process_builder->buildSshProcess($host, $param_builder($index), $retry_from);
     $process->run();
 }
